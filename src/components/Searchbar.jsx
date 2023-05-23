@@ -8,7 +8,9 @@ import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SearchIcon from '@mui/icons-material/Search';
-
+import MenuItem from "@mui/material/MenuItem"
+import Menu from "@mui/material/Menu"
+import { useNavigate } from "react-router-dom"
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -53,7 +55,37 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function EnhancedHeader({ setSearch, editItem, searchVisible }) {
-  
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const navigate = useNavigate()
+  const isMenuOpen = Boolean(anchorEl)
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+  const handleLogOut = () => {
+    setAnchorEl(null)
+    localStorage.removeItem("token")
+    navigate("/")
+  }
+  const menuId = "primary-search-account-menu"
+  const renderMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      id={menuId}
+      keepMounted
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      open={isMenuOpen}
+      onClose={handleMenuClose}
+    >
+      <MenuItem onClick={handleLogOut}>Log out</MenuItem>
+    </Menu>
+  )
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -62,9 +94,9 @@ export default function EnhancedHeader({ setSearch, editItem, searchVisible }) {
             size='large'
             edge='start'
             aria-label='account of current user'
-            
+            aria-controls={menuId}
             aria-haspopup='true'
-           
+            onClick={handleProfileMenuOpen}
             color='inherit'
             disabled={editItem}
           >
@@ -92,6 +124,7 @@ export default function EnhancedHeader({ setSearch, editItem, searchVisible }) {
           </Search>
         </Toolbar>
       </AppBar>
+      {renderMenu}
     </Box>
   );
 }

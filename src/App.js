@@ -10,9 +10,12 @@ import Table from "./components/Table"
 import Searchbar from "./components/Searchbar"
 import Login from "./components/Login"
 
-const Enter = ({ component: Component, ...table }) => {
-  const gettoken = !!localStorage.getItem("react-demo-token")
-  return gettoken ? <Component {...table} /> : <Navigate to='/' />
+const auth = () => {
+  if (localStorage.getItem("react-demo-token")) {
+    return true
+  } else {
+    return false
+  }
 }
 
 function App(props) {
@@ -30,23 +33,10 @@ function App(props) {
         />
       </Box>
       <Routes>
-        <Route
-          path='/products'
-          element={
-            <Enter
-              component={Table}
-              search={search}
-              editItem={editItem}
-              setEditItem={setEditItem}
-              setSearchVisible={setSearchVisible}
-            />
-          }
-        />
-        <Route
-          path='/'
-          element={<Login setSearchVisible={setSearchVisible} />}
-        />
+        <Route path='/' element={<Login setSearchVisible={setSearchVisible} />} />
+        <Route path='/products' element={auth() ? <Table component={Table} search={search} editItem={editItem}  setEditItem={setEditItem} setSearchVisible={setSearchVisible} /> :<Navigate to='/' />} />
       </Routes>
+     
     </Router>
   )
 }
