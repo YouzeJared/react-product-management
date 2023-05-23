@@ -23,16 +23,10 @@ import CheckIcon from "@mui/icons-material/Check"
 import CloseIcon from "@mui/icons-material/Close"
 import AddCircleIcon from "@mui/icons-material/AddCircle"
 import UpgradeIcon from "@mui/icons-material/Upgrade"
-import axios from 'axios';
+import axios from 'axios'
 import { TextField } from "@mui/material"
 import Snackbar from '@mui/material/Snackbar';
-import Snackbars from "./Snackbars"
-
-
-
-
-
-
+import MuiAlert from '@mui/material/Alert';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -156,14 +150,8 @@ export default function EnhancedTable({
   const [formData, setFormData] = React.useState([])
   const [adding, setAdding] = React.useState(false)
   const [open, setOpen] = React.useState(false)
-
-  
-    
-    
-  
-  
-
-
+  const [opens, setOpens] = React.useState(false);
+  const [snackContent, setSnackContent] = React.useState("");
 
   //获取数据
   React.useEffect(() => {
@@ -235,6 +223,7 @@ export default function EnhancedTable({
         setAddrow(false)
         setAdding(false)
         console.log(res)
+        handleSuccess("Data add successfully!");
       })
       .catch((err) => console.log(err))
 
@@ -290,9 +279,9 @@ export default function EnhancedTable({
         newProduct[index] = editedProduct
         setItem(newProduct)
         setEditItem((current) => !current)
+        handleSuccess("Data edited successfully!");
       })
       .catch((err) => console.log(err))
-    
 
 
   }
@@ -337,6 +326,7 @@ export default function EnhancedTable({
     })
       .then(() => {
         setItem(item.filter((row) => row.id !== currentDelete.id))
+        handleSuccess("Data delete successfully!");
       })
       .catch((error) => console.log(error));
 
@@ -350,13 +340,18 @@ export default function EnhancedTable({
     setProduct({ ...product, image: e.target.files[0] })
   }
 
-  const YourDataEditingComponent = () => {
-    const handleDataEditing = () => {
-      // Perform data editing logic here
-  
-      // If editing is successful, trigger the Snackbar
-      SnackbarComponent.handleSuccess();
-    };
+
+  const handleClosebar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpens(false);
+  };
+
+  const handleSuccess = (content) => {
+    setSnackContent(content);
+    setOpens(true);
+  };
 
 
   return (
@@ -525,9 +520,7 @@ export default function EnhancedTable({
                             <IconButton
                               color='primary'
                               onClick={(e) => handleEditSave()}
-                              
                             >
-                             
                               <CheckIcon />
                             </IconButton>
                             <IconButton
@@ -609,7 +602,13 @@ export default function EnhancedTable({
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
+
       </Paper>
+      <Snackbar open={opens} autoHideDuration={3000} onClose={handleClosebar}>
+        <MuiAlert onClose={handleClosebar} severity="success" elevation={6} variant="filled">
+          {snackContent}
+        </MuiAlert>
+      </Snackbar>
     </Box>
   )
-
+}

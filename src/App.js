@@ -11,6 +11,7 @@ import Searchbar from "./components/Searchbar"
 import Login from "./components/Login"
 
 
+
 const auth = () => {
   if (localStorage.getItem("react-demo-token")) {
     return true
