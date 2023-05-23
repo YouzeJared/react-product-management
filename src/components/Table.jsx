@@ -26,11 +26,10 @@ import UpgradeIcon from "@mui/icons-material/Upgrade"
 import axios from 'axios';
 import { TextField } from "@mui/material"
 import Snackbar from '@mui/material/Snackbar';
+import Snackbars from "./Snackbars"
 
 
 
-
-  
 
 
 
@@ -157,8 +156,12 @@ export default function EnhancedTable({
   const [formData, setFormData] = React.useState([])
   const [adding, setAdding] = React.useState(false)
   const [open, setOpen] = React.useState(false)
-  
 
+  
+    
+    
+  
+  
 
 
 
@@ -219,11 +222,12 @@ export default function EnhancedTable({
     formData.append("category_id", product.category_id)
     formData.append("is_active", 0)
     axios.create({
-      headers: 
+      headers:
       {
         'token': localStorage.getItem('react-demo-token')
       }
-    ,}).post(`https://app.spiritx.co.nz/api/products`, formData)
+      ,
+    }).post(`https://app.spiritx.co.nz/api/products`, formData)
       .then((res) => {
         const newProducts = [res.data, ...item]
         setItem(newProducts)
@@ -288,6 +292,7 @@ export default function EnhancedTable({
         setEditItem((current) => !current)
       })
       .catch((err) => console.log(err))
+    
 
 
   }
@@ -344,6 +349,14 @@ export default function EnhancedTable({
   const handleImgChange = e => {
     setProduct({ ...product, image: e.target.files[0] })
   }
+
+  const YourDataEditingComponent = () => {
+    const handleDataEditing = () => {
+      // Perform data editing logic here
+  
+      // If editing is successful, trigger the Snackbar
+      SnackbarComponent.handleSuccess();
+    };
 
 
   return (
@@ -419,7 +432,7 @@ export default function EnhancedTable({
                         <span><UpgradeIcon /></span>
                       )}
 
-                      
+
                     </IconButton>
                   </TableCell>
                   <TableCell align='center'>
@@ -512,7 +525,9 @@ export default function EnhancedTable({
                             <IconButton
                               color='primary'
                               onClick={(e) => handleEditSave()}
+                              
                             >
+                             
                               <CheckIcon />
                             </IconButton>
                             <IconButton
@@ -597,4 +612,4 @@ export default function EnhancedTable({
       </Paper>
     </Box>
   )
-}
+
