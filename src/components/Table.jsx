@@ -152,6 +152,7 @@ export default function EnhancedTable({
   const [open, setOpen] = React.useState(false)
   const [opens, setOpens] = React.useState(false);
   const [snackContent, setSnackContent] = React.useState("");
+  const [severity, setSeverity] = React.useState('success');
 
   //获取数据
   React.useEffect(() => {
@@ -162,8 +163,7 @@ export default function EnhancedTable({
         setItem(data)
         setFormData(data)
       })
-      .catch((err) => console.log(err))
-
+      .catch((err) => {handleFail(err.message);})
     setSearchVisible(true)
   }, [])
   //搜索过滤数据
@@ -200,7 +200,6 @@ export default function EnhancedTable({
   }
   //添加按钮保存
   const handleAddClick = (e) => {
-
     const formData = new FormData()
     e.preventDefault()
     product.title && formData.append("title", product.title)
@@ -225,9 +224,10 @@ export default function EnhancedTable({
         console.log(res)
         handleSuccess("Data add successfully!");
       })
-      .catch((err) => console.log(err))
-
+      .catch((err) => {handleFail(err.message);})
+      
   }
+
 
 
   {/*const handleAddForSubmit = (e) => {
@@ -281,7 +281,7 @@ export default function EnhancedTable({
         setEditItem((current) => !current)
         handleSuccess("Data edited successfully!");
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {handleFail(err.message);})
 
 
   }
@@ -328,7 +328,7 @@ export default function EnhancedTable({
         setItem(item.filter((row) => row.id !== currentDelete.id))
         handleSuccess("Data delete successfully!");
       })
-      .catch((error) => console.log(error));
+      .catch((err) => {handleFail(err.message);})
 
 
   }
@@ -351,6 +351,12 @@ export default function EnhancedTable({
   const handleSuccess = (content) => {
     setSnackContent(content);
     setOpens(true);
+    setSeverity('success');
+  };
+  const handleFail = (content) => {
+    setOpens(true);
+    setSnackContent(content);
+    setSeverity('error');
   };
 
 
@@ -605,10 +611,11 @@ export default function EnhancedTable({
 
       </Paper>
       <Snackbar open={opens} autoHideDuration={3000} onClose={handleClosebar}>
-        <MuiAlert onClose={handleClosebar} severity="success" elevation={6} variant="filled">
+        <MuiAlert onClose={handleClosebar} severity={severity} elevation={6} variant="filled">
           {snackContent}
         </MuiAlert>
       </Snackbar>
+
     </Box>
   )
 }
