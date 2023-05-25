@@ -11,6 +11,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import MenuItem from "@mui/material/MenuItem"
 import Menu from "@mui/material/Menu"
 import { useNavigate } from "react-router-dom"
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -58,6 +60,9 @@ export default function EnhancedHeader({ setSearch, editItem, searchVisible }) {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const navigate = useNavigate()
   const isMenuOpen = Boolean(anchorEl)
+  const [opens, setOpens] = React.useState(false);
+  const [snackContent, setSnackContent] = React.useState("");
+  const [severity, setSeverity] = React.useState('success');
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget)
   }
@@ -68,6 +73,7 @@ export default function EnhancedHeader({ setSearch, editItem, searchVisible }) {
     setAnchorEl(null)
     localStorage.removeItem("token")
     navigate("/")
+    handleSuccess("Log out successfully!");
   }
   const menuId = "primary-search-account-menu"
   const renderMenu = (
@@ -85,6 +91,18 @@ export default function EnhancedHeader({ setSearch, editItem, searchVisible }) {
       <MenuItem onClick={handleLogOut}>Log out</MenuItem>
     </Menu>
   )
+  const handleClosebar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpens(false);
+  };
+
+  const handleSuccess = (content) => {
+    setSnackContent(content);
+    setOpens(true);
+    setSeverity('success');
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -125,6 +143,12 @@ export default function EnhancedHeader({ setSearch, editItem, searchVisible }) {
         </Toolbar>
       </AppBar>
       {renderMenu}
+      <Snackbar open={opens} autoHideDuration={3000} onClose={handleClosebar}>
+        <MuiAlert onClose={handleClosebar} severity={severity} elevation={6} variant="filled">
+          {snackContent}
+        </MuiAlert>
+      </Snackbar>
     </Box>
+    
   );
 }

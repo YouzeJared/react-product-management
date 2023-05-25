@@ -20,14 +20,16 @@ import EditIcon from "@mui/icons-material/Edit"
 import DeleteIcon from "@mui/icons-material/Delete"
 import IconButton from "@mui/material/IconButton"
 import CheckIcon from "@mui/icons-material/Check"
+import UpgradeIcon from '@mui/icons-material/Upgrade';
 import CloseIcon from "@mui/icons-material/Close"
 import AddCircleIcon from "@mui/icons-material/AddCircle"
-import UpgradeIcon from "@mui/icons-material/Upgrade"
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import axios from 'axios'
 import { TextField } from "@mui/material"
+import GetAppIcon from "@mui/icons-material/GetApp"
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-
+import * as XLSX from "xlsx"
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1
@@ -153,7 +155,9 @@ export default function EnhancedTable({
   const [opens, setOpens] = React.useState(false);
   const [snackContent, setSnackContent] = React.useState("");
   const [severity, setSeverity] = React.useState('success');
+  const [downLoad, setDownLoad] = React.useState(false)
 
+  
   //获取数据
   React.useEffect(() => {
     axios.get("https://app.spiritx.co.nz/api/products")
@@ -162,6 +166,7 @@ export default function EnhancedTable({
         data.map((prod) => (prod.price = parseInt(prod.price)))
         setItem(data)
         setFormData(data)
+        handleSuccess("Log in successfully!");
       })
       .catch((err) => {handleFail(err.message);})
     setSearchVisible(true)
@@ -298,12 +303,15 @@ export default function EnhancedTable({
     })
     setEditItem((current) => !current)
     setAdding(!adding)
+    
+    
   }
   //点击添加按钮
   const handleClick = () => {
     setEditItem(false)
     setAddrow(true)
     setAdding(true)
+    
   }
   //删除，弹窗页面
   const handleDelete = (e, value) => {
@@ -358,13 +366,73 @@ export default function EnhancedTable({
     setSnackContent(content);
     setSeverity('error');
   };
+  const handleRequestImport = (e) => {
+    const uploadedFile = e.target.files[0]
+    const fileReader = new FileReader()
+    fileReader.readAsArrayBuffer(uploadedFile)
+    fileReader.onload = (e) => {
+      const bufferArray = e.target.result
+      const workbook = XLSX.read(bufferArray, {
+        type: 'buffer'
+      })
+      const data = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]],
+        { header: 1 }
+      )
+      const SliceRows = data.slice(1).map((r) =>
+        r.reduce((acc, x, i) => {
+          acc[data[0][i]] = x
+          return acc
+        }, {})
+      )
+      console.log(SliceRows)
+      setItem(
+        SliceRows.map((pro) => pro),
+        ...item
+      )
+      handleSuccess('import-success')
+    }
+  }
+  const handleDownload = () => {
+    const sheetData = item.map((row) => [row.title, row.description, row.price])
+    const workbook = XLSX.utils.book_new()
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData)
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1")
+    XLSX.writeFile(workbook, "luxdream.xlsx")
+    handleSuccess('export-success')
+  }
+  
 
 
   return (
     <Box sx={{ width: "100%" }}>
       <Box>
-        <IconButton color='primary' onClick={handleClick} disabled={adding}>
+        <IconButton color='primary' onClick={handleClick} >
           <AddCircleIcon />
+        </IconButton>
+        <IconButton
+          color='primary'
+          onClick={handleDownload}
+        >
+          
+          <GetAppIcon />
+        </IconButton>
+        <IconButton
+          color='primary'
+          aria-label='upload excel'
+          component='label'
+          disabled={downLoad}
+          
+        >
+          <input
+            hidden
+            type='file'
+            accept='.xlsx, .xls'
+            onChange={(e) => {
+              handleRequestImport(e)
+            }}
+          />
+          <FileUploadIcon />
         </IconButton>
       </Box>
       <Paper sx={{ width: "100%", mb: 2 }}>

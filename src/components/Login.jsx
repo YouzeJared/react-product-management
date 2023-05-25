@@ -9,11 +9,16 @@ import Stack from "@mui/material/Stack"
 import Button from "@mui/material/Button"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 export default function Login({ setSearchVisible }) {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const navigate = useNavigate()
+  const [opens, setOpens] = React.useState(false);
+  const [snackContent, setSnackContent] = React.useState("");
+  const [severity, setSeverity] = React.useState('success');
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -23,15 +28,24 @@ export default function Login({ setSearchVisible }) {
         localStorage.setItem("react-demo-token", res.data.token.token)
         localStorage.setItem("react-demo-user", JSON.stringify(res.data.user))
         navigate("/products")
-        setTimeout(()=>{
+        setTimeout(() => {
           window.location.reload()
-        },2000)
+        }, 2000)
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {handleFail(err.message);})
   }
-  
 
-
+  const handleClosebar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpens(false);
+  };
+  const handleFail = (content) => {
+    setOpens(true);
+    setSnackContent(content);
+    setSeverity('error');
+  };
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center" }}>
@@ -44,7 +58,7 @@ export default function Login({ setSearchVisible }) {
         >
           <LockIcon fontSize='large' color='success' />
           <Typography variant='h4' gutterBottom>
-          Login
+            Login
           </Typography>
         </Stack>
         <Stack
@@ -59,7 +73,7 @@ export default function Login({ setSearchVisible }) {
             label='email'
             onChange={(e) => setEmail(e.target.value)}
             required
-            
+
           />
           <InputLabel>Password*</InputLabel>
           <Input
@@ -74,6 +88,11 @@ export default function Login({ setSearchVisible }) {
           </Button>
         </Stack>
       </Paper>
+      <Snackbar open={opens} autoHideDuration={3000} onClose={handleClosebar}>
+        <MuiAlert onClose={handleClosebar} severity={severity} elevation={6} variant="filled">
+          {snackContent}
+        </MuiAlert>
+      </Snackbar>
     </Box>
   )
 }
